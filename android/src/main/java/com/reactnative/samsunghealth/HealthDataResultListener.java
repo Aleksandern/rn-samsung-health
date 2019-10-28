@@ -2,8 +2,8 @@ package com.reactnative.samsunghealth;
 
 import android.database.Cursor;
 import android.util.Log;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import android.widget.Toast;
 
 import com.facebook.react.bridge.Callback;
@@ -20,6 +20,7 @@ import com.facebook.react.bridge.LifecycleEventListener;
 
 import com.samsung.android.sdk.healthdata.HealthConnectionErrorResult;
 import com.samsung.android.sdk.healthdata.HealthConstants;
+import com.samsung.android.sdk.healthdata.HealthData;
 import com.samsung.android.sdk.healthdata.HealthDataObserver;
 import com.samsung.android.sdk.healthdata.HealthDataResolver;
 import com.samsung.android.sdk.healthdata.HealthDataResolver.Filter;
@@ -55,14 +56,16 @@ public class HealthDataResultListener implements
 {
     private static final String REACT_MODULE = "RNSamsungHealth";
 
+    private boolean mOnlyCount;
     private Callback mSuccessCallback;
     private Callback mErrorCallback;
     private SamsungHealthModule mModule;
 
     public static final String[] TIME_COLUMNS = {"day_time","start_time","end_time"};
 
-    public HealthDataResultListener(SamsungHealthModule module, Callback error, Callback success)
+    public HealthDataResultListener(SamsungHealthModule module, Callback error, Callback success, boolean onlyCount)
     {
+        mOnlyCount = onlyCount;
         mSuccessCallback = success;
         mErrorCallback = error;
         mModule = module;
@@ -123,6 +126,25 @@ public class HealthDataResultListener implements
         Map<String, WritableArray> devices = new HashMap<>();
 
         Cursor c = null;
+        int count = 0;
+
+        if (mOnlyCount) {
+            try {
+                for (HealthData data : result) {
+                    count += data.getInt(HealthConstants.StepCount.COUNT);
+                }
+            }
+            catch(Exception e) {
+                Log.e(REACT_MODULE, e.getClass().getName() + " - " + e.getMessage());
+                mErrorCallback.invoke(e.getClass().getName() + " - " + e.getMessage());
+            } finally {
+                result.close();
+            }
+
+            mSuccessCallback.invoke(count);
+
+            return;
+        }
 
         try {
             c = result.getResultCursor();

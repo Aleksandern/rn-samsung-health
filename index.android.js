@@ -44,6 +44,18 @@ class RNSamsungHealth {
     );
   }
 
+  getDateStepCount(options, callback) {
+    let startDate = options.startDate != undefined ? options.startDate : (new Date()).setHours(0,0,0,0);
+    let endDate = options.endDate != undefined ? options.endDate : (new Date()).valueOf();
+
+    samsungHealth.readDateStepCount(startDate, endDate,
+      (msg) => { callback(msg, false); },
+      (res) => {
+        callback(false, res);
+      }
+    );
+  }
+
   getWeight(options, callback) {
     let startDate = options.startDate != undefined ? options.startDate : (new Date()).setHours(0,0,0,0);
     let endDate = options.endDate != undefined ? options.endDate : (new Date()).valueOf();
@@ -120,7 +132,7 @@ class RNSamsungHealth {
       }
     );
   }
-  
+
   getCholesterol(options, callback) {
 
     let startDate = options.startDate != undefined ? options.startDate : (new Date()).setHours(0,0,0,0);
@@ -151,7 +163,7 @@ class RNSamsungHealth {
           var year = date.getFullYear();
           var dateFormatted = year + "-" + month + "-" + day;
           results.push({steps:step.count, date:dateFormatted,  calorie:step.calorie, distance: step.distance})
-        
+
       }
       return results;
   }

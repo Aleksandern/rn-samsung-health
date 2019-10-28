@@ -193,13 +193,13 @@ public class SamsungHealthModule extends ReactContextBaseJavaModule implements
                         HealthConstants.StepCount.DISTANCE,
                         SamsungHealthModule.DAY_TIME,
                         HealthConstants.StepCount.CALORIE,
-                        HealthConstants.StepCount.DEVICE_UUID 
+                        HealthConstants.StepCount.DEVICE_UUID
                 })
                 .setFilter(filter)
                 .build();
 
         try {
-            resolver.read(request).setResultListener(new HealthDataResultListener(this, error, success));
+            resolver.read(request).setResultListener(new HealthDataResultListener(this, error, success, false));
         } catch (Exception e) {
             Log.e(REACT_MODULE, e.getClass().getName() + " - " + e.getMessage());
             Log.e(REACT_MODULE, "Getting step count fails.");
@@ -207,6 +207,31 @@ public class SamsungHealthModule extends ReactContextBaseJavaModule implements
         }
 
 
+    }
+
+
+    // Read the date's step count on demand
+    @ReactMethod
+    public void readDateStepCount(double startDate, double endDate, Callback error, Callback success) {
+        HealthDataResolver resolver = new HealthDataResolver(mStore, null);
+
+        // Set time range from start time of today to the current time
+        long startTime = getStartTimeOfToday();
+
+        HealthDataResolver.ReadRequest request = new ReadRequest.Builder()
+                    .setDataType(HealthConstants.StepCount.HEALTH_DATA_TYPE)
+                    .setProperties(new String[] {HealthConstants.StepCount.COUNT})
+                    .setLocalTimeRange(HealthConstants.StepCount.START_TIME, HealthConstants.StepCount.TIME_OFFSET,
+                            (long) startDate, (long) endDate)
+                    .build();
+
+        try {
+            resolver.read(request).setResultListener(new HealthDataResultListener(this, error, success, true));
+        } catch (Exception e) {
+            Log.e(REACT_MODULE, e.getClass().getName() + " - " + e.getMessage());
+            Log.e(REACT_MODULE, "Getting step count fails.");
+            error.invoke("Getting step count fails.");
+        }
     }
 
 
@@ -221,15 +246,15 @@ public class SamsungHealthModule extends ReactContextBaseJavaModule implements
                 .setDataType(HealthConstants.Height.HEALTH_DATA_TYPE)
                 .setProperties(new String[]{
                         HealthConstants.Height.HEIGHT,
-                        HealthConstants.Height.START_TIME,  
+                        HealthConstants.Height.START_TIME,
                         HealthConstants.Height.TIME_OFFSET,
-                        HealthConstants.Height.DEVICE_UUID 
+                        HealthConstants.Height.DEVICE_UUID
                 })
                 .setFilter(filter)
                 .build();
 
         try {
-            resolver.read(request).setResultListener(new HealthDataResultListener(this, error, success));
+            resolver.read(request).setResultListener(new HealthDataResultListener(this, error, success, false));
         } catch (Exception e) {
             Log.e(REACT_MODULE, e.getClass().getName() + " - " + e.getMessage());
             Log.e(REACT_MODULE, "Getting Height fails.");
@@ -253,14 +278,14 @@ public class SamsungHealthModule extends ReactContextBaseJavaModule implements
                         HealthConstants.BloodPressure.PULSE,
                         HealthConstants.BloodPressure.START_TIME,
                         HealthConstants.BloodPressure.SYSTOLIC,
-                        HealthConstants.BloodPressure.TIME_OFFSET, 
-                        HealthConstants.BloodPressure.DEVICE_UUID 
+                        HealthConstants.BloodPressure.TIME_OFFSET,
+                        HealthConstants.BloodPressure.DEVICE_UUID
                 })
                 .setFilter(filter)
                 .build();
 
         try {
-            resolver.read(request).setResultListener(new HealthDataResultListener(this, error, success));
+            resolver.read(request).setResultListener(new HealthDataResultListener(this, error, success, false));
         } catch (Exception e) {
             Log.e(REACT_MODULE, e.getClass().getName() + " - " + e.getMessage());
             Log.e(REACT_MODULE, "Getting BloodPressure fails.");
@@ -278,19 +303,19 @@ public class SamsungHealthModule extends ReactContextBaseJavaModule implements
             Filter.lessThanEquals(HealthConstants.BodyTemperature.START_TIME, (long)endDate)
         );
         HealthDataResolver.ReadRequest request = new ReadRequest.Builder()
-                .setDataType(HealthConstants.BodyTemperature.HEALTH_DATA_TYPE) 
+                .setDataType(HealthConstants.BodyTemperature.HEALTH_DATA_TYPE)
                 .setProperties(new String[]{
                         HealthConstants.BodyTemperature.START_TIME,
                         // HealthConstants.BodyTemperature.END_TIME,
                         HealthConstants.BodyTemperature.TEMPERATURE,
                         HealthConstants.BodyTemperature.TIME_OFFSET,
-                        HealthConstants.BodyTemperature.DEVICE_UUID 
+                        HealthConstants.BodyTemperature.DEVICE_UUID
                 })
                 .setFilter(filter)
                 .build();
 
         try {
-            resolver.read(request).setResultListener(new HealthDataResultListener(this, error, success));
+            resolver.read(request).setResultListener(new HealthDataResultListener(this, error, success, false));
         } catch (Exception e) {
             Log.e(REACT_MODULE, e.getClass().getName() + " - " + e.getMessage());
             Log.e(REACT_MODULE, "Getting BodyTemperature fails.");
@@ -310,19 +335,19 @@ public class SamsungHealthModule extends ReactContextBaseJavaModule implements
             Filter.lessThanEquals(HealthConstants.HeartRate.END_TIME, (long)endDate)
         );
         HealthDataResolver.ReadRequest request = new ReadRequest.Builder()
-                .setDataType(HealthConstants.HeartRate.HEALTH_DATA_TYPE) 
+                .setDataType(HealthConstants.HeartRate.HEALTH_DATA_TYPE)
                 .setProperties(new String[]{
                         HealthConstants.HeartRate.START_TIME,
                         HealthConstants.HeartRate.END_TIME,
                         HealthConstants.HeartRate.HEART_RATE,
                         HealthConstants.HeartRate.TIME_OFFSET,
-                        HealthConstants.HeartRate.DEVICE_UUID 
+                        HealthConstants.HeartRate.DEVICE_UUID
                 })
                 .setFilter(filter)
                 .build();
 
         try {
-            resolver.read(request).setResultListener(new HealthDataResultListener(this, error, success));
+            resolver.read(request).setResultListener(new HealthDataResultListener(this, error, success, false));
         } catch (Exception e) {
             Log.e(REACT_MODULE, e.getClass().getName() + " - " + e.getMessage());
             Log.e(REACT_MODULE, "Getting HeartRate fails.");
@@ -339,7 +364,7 @@ public class SamsungHealthModule extends ReactContextBaseJavaModule implements
             Filter.lessThanEquals(HealthConstants.Sleep.END_TIME, (long)endDate)
         );
         HealthDataResolver.ReadRequest request = new ReadRequest.Builder()
-                .setDataType(HealthConstants.Sleep.HEALTH_DATA_TYPE) 
+                .setDataType(HealthConstants.Sleep.HEALTH_DATA_TYPE)
                 .setProperties(new String[]{
                         HealthConstants.Sleep.START_TIME,
                         HealthConstants.Sleep.END_TIME,
@@ -350,7 +375,7 @@ public class SamsungHealthModule extends ReactContextBaseJavaModule implements
                 .build();
 
         try {
-            resolver.read(request).setResultListener(new HealthDataResultListener(this, error, success));
+            resolver.read(request).setResultListener(new HealthDataResultListener(this, error, success, false));
         } catch (Exception e) {
             Log.e(REACT_MODULE, e.getClass().getName() + " - " + e.getMessage());
             Log.e(REACT_MODULE, "Getting Sleep fails.");
@@ -367,19 +392,19 @@ public class SamsungHealthModule extends ReactContextBaseJavaModule implements
             Filter.lessThanEquals(HealthConstants.Weight.START_TIME, (long)endDate)
         );
         HealthDataResolver.ReadRequest request = new ReadRequest.Builder()
-                .setDataType(HealthConstants.Weight.HEALTH_DATA_TYPE) 
+                .setDataType(HealthConstants.Weight.HEALTH_DATA_TYPE)
                 .setProperties(new String[]{
                         HealthConstants.Weight.WEIGHT,
                         // HealthConstants.Weight.END_TIME,
                         HealthConstants.Weight.START_TIME,
-                        HealthConstants.Weight.TIME_OFFSET, 
-                        HealthConstants.Weight.DEVICE_UUID  
+                        HealthConstants.Weight.TIME_OFFSET,
+                        HealthConstants.Weight.DEVICE_UUID
                 })
                 .setFilter(filter)
                 .build();
 
         try {
-            resolver.read(request).setResultListener(new HealthDataResultListener(this, error, success));
+            resolver.read(request).setResultListener(new HealthDataResultListener(this, error, success, false));
         } catch (Exception e) {
             Log.e(REACT_MODULE, e.getClass().getName() + " - " + e.getMessage());
             Log.e(REACT_MODULE, "Getting weight fails.");
@@ -400,14 +425,14 @@ public class SamsungHealthModule extends ReactContextBaseJavaModule implements
                 .setProperties(new String[]{
                         HealthConstants.TotalCholesterol.TOTAL_CHOLESTEROL,
                         HealthConstants.TotalCholesterol.START_TIME,
-                        HealthConstants.TotalCholesterol.TIME_OFFSET, 
+                        HealthConstants.TotalCholesterol.TIME_OFFSET,
                         HealthConstants.TotalCholesterol.DEVICE_UUID
                 })
                 .setFilter(filter)
                 .build();
 
         try {
-            resolver.read(request).setResultListener(new HealthDataResultListener(this, error, success));
+            resolver.read(request).setResultListener(new HealthDataResultListener(this, error, success, false));
         } catch (Exception e) {
             Log.e(REACT_MODULE, e.getClass().getName() + " - " + e.getMessage());
             Log.e(REACT_MODULE, "Getting TotalCholesterol fails.");
